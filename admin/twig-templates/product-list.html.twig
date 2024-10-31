@@ -1,0 +1,56 @@
+{# https://twig.symfony.com/doc/2.x/ #}
+{# @var p \Pg\Product #}
+{% for p in products | orderProducts('bestSeller,priceAscending') %}
+    <h3>{{ loop.index | cardinal }}: {{ p.titles | longest }}</h3>
+
+    {% if p.images | length > 0 %}
+        <img src="{{ (p.images | first).url }}" style="float: left; width: 200px;"/>
+    {% endif %}
+
+    {# description #}
+    {% for site, description in p.descriptions %}
+        <h4>Description from {{ site | capitalize }} </h4>
+        <p>{{ description | striptags('<br><p><ul><li>') | slice(0, 3000) | raw }}</p>
+    {% endfor %}
+
+    {# ratings TODO #}
+    <ul>
+        {% for site, rating in p.ratings %}
+            <li>Rating from {{ site | capitalize }}: {{ rating['stars'] }} ({{ rating['number'] }})</li>
+        {% endfor %}
+    </ul>
+
+    {# reviews TODO #}
+    {% if  p.reviews %}
+        <h2>Reviews</h2>
+        {% for site, reviews in p.reviews %}
+            <h4>Reviews from {{ site | capitalize }} </h4>
+            <ul>
+                {% for review in reviews %}
+                    <li>{{ review }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+
+    {# videos #}
+    {% if p.youtubeVideos %}
+        {% for video in p.youtubeVideos %}
+            <h4>Video {{ loop.index }}: {{ video.title }}</h4>
+            <p>{{ video.description }}</p>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ video.id }}" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        {% endfor %}
+    {% endif %}
+
+    {# price #}
+    <ul>
+        {% for price in p.prices %}
+            <li><span style="color: red">{{ price.currency }}{{ price.amount }}</span> on <a
+                        href="{{ p.urls[price.site] }}" target="_blank" rel="nofollow">{{ price.site | capitalize }}</a></li>
+        {% endfor %}
+    </ul>
+
+
+{% endfor %}
